@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.lang.Math.pow;
 
 public class HashTable {
 
@@ -51,7 +50,7 @@ public class HashTable {
         for (int i = 0; i < n; i++) {
             sum += value.charAt(i);
         }
-        return sum / n;
+        return sum % n;
     }
 
     @Override

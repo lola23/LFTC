@@ -5,7 +5,7 @@ public class Main {
 
         HashTable table = new HashTable();
 
-        table.add("identifier");
+        table.add("wwwax");
         table.add("anotherIdentifier");
         table.add("surpriseIdentifier");
         table.add("Identifiersurprise");
