@@ -1,0 +1,23 @@
+program = “begin_appy” stmt_list “end_appy”
+declaration = type identifier {“,” identifier}“;”
+basetype = “inty” | “booly”
+array_declaration = arry[basetype] identifier“[” nz_digit { “0” | nz_digit } “]”“;”
+type = basetype | array_declaration
+
+stmt = simple_stmt | struct_stmt
+simple_stmt = assignment_stmt | io_stmt
+struct_stmt = compound_stmt | if_stmt | loop_stmt
+compound_stmt = “{” stmt_list “}”
+stmt_list = stmt";" { stmt";"}
+
+expression = [“not”](term | expression operation expression)
+operation  = “+” | “-“ | “*” | “/” | “%” | “and” | “or"
+term = identifier | integer | bool | identifier"["identifier"]"
+
+assignment_stmt = identifier “is” expression”;”
+io_stmt = (“pickup” | “sparkle”)(identifier)“;”
+if_stmt = “ify” condition “{” stmt “}” { “elsify” condition “{” stmt “}” } [“elsy” “{” stmt “}”]
+loop_stmt = “loopy” loop “{” stmt “}” 
+condition = “(” expression relation expression “)”
+loop = “(” inty identifier“;” expression “to” expression“;” integer “)”
+relation = “<” | “<=” | “=” | “!=” | “>=” | “>” | “and” | “or”
