@@ -1,0 +1,5 @@
+begin_appy
+	inty a;
+	a is 2#3;
+	booly 3rror;
+end_appy

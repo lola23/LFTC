@@ -1,0 +1,17 @@
+begin_appy
+	inty n;
+	booly isPrime;
+    n is 13;
+        isPrime is true;
+
+    ify ( n > 1 ) {
+        loopy ( inty i; 2 to n - 1; 1) {
+            ify ( n % i = 0 ) {
+                isPrime is false;
+            }
+        }
+    } elsy {
+        isPrime is false;
+    }
+    sparkle (isPrime);
+end_appy
