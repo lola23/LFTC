@@ -87,10 +87,13 @@ public class Scanner {
 
     private ArrayList<String> tokenizeLine(ArrayList<String> tokens, String separator) {
         ArrayList<String> newTokens = new ArrayList<>();
+        int i = 0;
         for(String token : tokens) {
-            if (token.equals("-")) {
-                // TODO
-            } else {
+            if (token.equals("-") && Language.isInteger(tokens.get(i + 1))) {
+                newTokens.add("-" + tokens.get(i + 1));
+            } else if (i != 0 && tokens.get(i - 1).equals("-") && Language.isInteger(token)) { continue; }
+            else
+                {
                 if (!token.equals(">=") && !token.equals("<=") && !token.equals("!=")) {
                     newTokens.addAll(Arrays.asList(token.split(String.format(WITH_DELIMITER, separator))));
                 }
@@ -98,6 +101,7 @@ public class Scanner {
                     newTokens.add(token);
                 }
             }
+            i++;
         }
         return newTokens;
     }
