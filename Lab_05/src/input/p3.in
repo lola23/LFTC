@@ -1,0 +1,11 @@
+begin_appy
+	inty n, sum;
+    sum is 0;
+    n is 10;
+    arry[inty] a[n];
+
+    loopy ( inty i; 0 to n - 1; 1) {
+        sum = sum + a[i];
+    }
+    sparkle (sum);
+end_appy

@@ -1,0 +1,13 @@
+--- STs are represented using a HashTable ---
+--- STI ---
+97 [a]
+85 [sum]
+105 [i]
+110 [n]
+
+--- STC ---
+48 [0]
+97 [10]
+49 [1]
+94 [-1]
+

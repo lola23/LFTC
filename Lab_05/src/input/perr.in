@@ -1,0 +1,6 @@
+begin_appy
+	inty a;
+	a is 120;
+	a is 03;
+	booly 3rror;
+end_appy
