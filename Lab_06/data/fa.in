@@ -1,0 +1,9 @@
+Q = p q r
+E = a b
+q0 = p
+F = r
+S =
+p, a -> q
+q, a -> q
+q, b -> r
+p, b -> r
