@@ -16,7 +16,7 @@ public class Grammar {
     }
 
     public void readFromFile() throws IOException {
-        File file = new File("E:\\An III\\LFTC\\Labs\\Lab_08\\data\\grammar_test_1.in");
+        File file = new File("grammar_test_1.in");
 
         BufferedReader reader = new BufferedReader(new FileReader(file));
 
@@ -79,5 +79,19 @@ public class Grammar {
             }
         }
         return  P;
+    }
+
+    public Map<String, List<List<String>>> getProductionsInWhichNTIsOnTheRight(String nt) {
+        Map<String, List<List<String>>> result = new HashMap<>();
+        P.forEach((k,v) -> {
+            for(List<String> productionRule: v) {
+                if(productionRule.contains(nt)) {
+                    List<List<String>> tempResult = result.getOrDefault(k, new ArrayList<>());
+                    tempResult.add(productionRule);
+                    result.put(k, tempResult);
+                }
+            }
+        });
+        return result;
     }
 }

@@ -5,46 +5,48 @@ import java.util.Scanner;
 public class Main {
 
     static Grammar grammar = new Grammar();
-    // static LL_1 ll1 = new LL_1(grammar);
+     static LL_1 ll1 = new LL_1(grammar);
 
     public static void main(String[] args) throws IOException {
 
         grammar.readFromFile();
+        ll1.FIRST();
+        ll1.FOLLOW();
 
-        while (true) {
-            printMenu();
-
-            Scanner scanner = new Scanner(System.in);
-            System.out.print("Option: ");
-
-            String option = scanner.nextLine();
-
-            switch (option) {
-                case "1": {
-                    printNonTerminals();
-                    break;
-                }
-                case "2": {
-                    printTerminals();
-                    break;
-                }
-                case "3": {
-                    printProductions();
-                    break;
-                }
-                case "4": {
-                    String nonTerminal = scanner.nextLine();
-                    printProductionsForANonTerminal(nonTerminal.trim());
-                    break;
-                }
-                case "0": {
-                    return;
-                }
-                default: {
-                    System.out.println("Wrong option");
-                }
-            }
-        }
+//        while (true) {
+//            printMenu();
+//
+//            Scanner scanner = new Scanner(System.in);
+//            System.out.print("Option: ");
+//
+//            String option = scanner.nextLine();
+//
+//            switch (option) {
+//                case "1": {
+//                    printNonTerminals();
+//                    break;
+//                }
+//                case "2": {
+//                    printTerminals();
+//                    break;
+//                }
+//                case "3": {
+//                    printProductions();
+//                    break;
+//                }
+//                case "4": {
+//                    String nonTerminal = scanner.nextLine();
+//                    printProductionsForANonTerminal(nonTerminal.trim());
+//                    break;
+//                }
+//                case "0": {
+//                    return;
+//                }
+//                default: {
+//                    System.out.println("Wrong option");
+//                }
+//            }
+//        }
     }
 
     private static void printMenu() {
