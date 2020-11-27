@@ -12,6 +12,8 @@ public class Main {
         grammar.readFromFile();
         ll1.FIRST();
         ll1.FOLLOW();
+        ll1.parseTable();
+        System.out.println(ll1.getParseTable());
 
 //        while (true) {
 //            printMenu();
