@@ -16,7 +16,7 @@ public class Grammar {
     }
 
     public void readFromFile() throws IOException {
-        File file = new File("grammar_test_1.in");
+        File file = new File("E:\\An III\\LFTC\\Labs\\Lab_08\\data\\grammar_test_1.in");
 
         BufferedReader reader = new BufferedReader(new FileReader(file));
 

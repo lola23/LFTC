@@ -1,4 +1,6 @@
 
+import javafx.util.Pair;
+
 import java.util.*;
 
 
@@ -8,13 +10,20 @@ public class LL_1 {
     private Map<String, List<String>> FIRST;
     private Map<String, Set<String>> FOLLOW;
     private Map<Pair<String, String>, Pair<List<String>, Integer>> parseTable;
-
+    private Map<Pair<String, List<String>>, Integer> numberedProductions = new HashMap<>();
+    private Stack<String> alpha = new Stack<>();
+    private Stack<String> beta = new Stack<>();
+    private Stack<String> pi = new Stack<>();
 
     public LL_1(Grammar grammar) {
         this.grammar = grammar;
         this.FIRST = new HashMap<>();
         this.FOLLOW = new HashMap<>();
         this.parseTable = new HashMap<>();
+    }
+
+    public Stack<String> getPi() {
+        return pi;
     }
 
     public List<String> first(String nonTerminal) {
@@ -67,7 +76,7 @@ public class LL_1 {
         List<String> nonTerminals = grammar.getN();
         for (String n : nonTerminals)
             previousIteration.put(n, new HashSet<>());
-        previousIteration.get(grammar.getS()).add("~");
+        previousIteration.get(grammar.getS()).add("$");
         currentIteration = copy(previousIteration);
 
 
@@ -106,53 +115,71 @@ public class LL_1 {
         System.out.println(this.FOLLOW);
     }
 
-
     public static HashMap<String, Set<String>> copy(Map<String, Set<String>> original) {
         HashMap<String, Set<String>> copy = new HashMap<>();
         for (Map.Entry<String, Set<String>> entry : original.entrySet()) {
-            Set<String> temp = new HashSet<>();
-            temp.addAll(entry.getValue());
+            Set<String> temp = new HashSet<>(entry.getValue());
             copy.put(entry.getKey(), temp);
         }
         return copy;
     }
 
-    public void parseTable() {
-        List<String> columnSymbols = new ArrayList<>(grammar.getE());
-        columnSymbols.add("$");
-
-        parseTable.put(new Pair<>("$", "$"), new Pair<>(Collections.singletonList("acc"), -1));
-        for (String terminal : grammar.getE())
-            parseTable.put(new Pair<>(terminal, terminal), new Pair<>(Collections.singletonList("pop"), -1));
-
-        Map<Pair<String,List<String>>, Integer> numberedProductions = new HashMap<>();
-
+    public void numberProductions() {
         int index = 1;
         for (Map.Entry<String, List<List<String>>> entry : grammar.getP().entrySet()) {
             for (List<String> rule : entry.getValue())
                 numberedProductions.put(new Pair<>(entry.getKey(), rule), index++);
         }
+    }
+    
+    public void generateParseTable() {
+        numberProductions();
+
+        List<String> columnSymbols = new LinkedList<>(grammar.getE());
+        columnSymbols.add("$");
+
+        // M(a, a) = pop
+        // M($, $) = acc
+
+        parseTable.put(new Pair<>("$", "$"), new Pair<>(Collections.singletonList("acc"), -1));
+        for (String terminal: grammar.getE())
+            parseTable.put(new Pair<>(terminal, terminal), new Pair<>(Collections.singletonList("pop"), -1));
+
+//        1) M(A, a) = (α, i), if:
+//            a) a ∈ first(α)
+//            b) a != ~
+//            c) A -> α production with index i
+//
+//        2) M(A, b) = (α, i), if:
+//            a) ~ ∈ first(α)
+//            b) whichever b ∈ follow(A)
+//            c) A -> α production with index i
 
         numberedProductions.forEach((key, value) -> {
             String rowSymbol = key.getKey();
             List<String> rule = key.getValue();
             Pair<List<String>, Integer> parseTableValue = new Pair<>(rule, value);
+
             for (String columnSymbol : columnSymbols) {
                 Pair<String, String> parseTableKey = new Pair<>(rowSymbol, columnSymbol);
+
                 // if our column-terminal is exactly first of rule
                 if (rule.get(0).equals(columnSymbol) && !columnSymbol.equals("~"))
                     parseTable.put(parseTableKey, parseTableValue);
+
                     // if the first symbol is a non-terminal and it's first contain our column-terminal
                 else if (grammar.getN().contains(rule.get(0)) && FIRST.get(rule.get(0)).contains(columnSymbol)) {
-                    if (!containsKey(parseTableKey)) {
+                    if (!parseTable.containsKey(parseTableKey)) {
                         parseTable.put(parseTableKey, parseTableValue);
                     }
-                } else {
+                }
+                else {
                     // if the first symbol is ~ then everything if FOLLOW(rowSymbol) will be in parse table
                     if (rule.get(0).equals("~")) {
                         for (String b : FOLLOW.get(rowSymbol))
                             parseTable.put(new Pair<>(rowSymbol, b), parseTableValue);
-                        // if ~ is in FIRST(rule)
+
+                    // if ~ is in FIRST(rule)
                     } else {
                         Set<String> firsts = new HashSet<>();
                         for (String symbol : rule)
@@ -163,7 +190,7 @@ public class LL_1 {
                                 if (b.equals("~"))
                                     b = "$";
                                 parseTableKey = new Pair<>(rowSymbol, b);
-                                if (!containsKey(parseTableKey)) {
+                                if (!parseTable.containsKey(parseTableKey)) {
                                     parseTable.put(parseTableKey, parseTableValue);
                                 }
                             }
@@ -172,6 +199,72 @@ public class LL_1 {
                 }
             }
         });
+    }
+
+    public boolean parse(List<String> w) {
+        alpha.clear();
+        alpha.push("$");
+        pushAll(w, alpha);
+
+        beta.clear();
+        beta.push("$");
+        beta.push(grammar.getS());
+
+        pi.clear();
+        pi.push("~");
+
+        boolean go = true;
+        boolean result = true;
+
+        while (go) {
+            String betaHead = beta.peek();
+            String alphaHead = alpha.peek();
+
+            if (betaHead.equals("$") && alphaHead.equals("$")) {
+                return result;
+            }
+
+            Pair<String, String> heads = new Pair<>(betaHead, alphaHead);
+            Pair<List<String>, Integer> parseTableEntry = parseTable.get(heads);
+
+            if (parseTableEntry == null) {
+                heads = new Pair<>(betaHead, "~");
+                parseTableEntry = parseTable.get(heads);
+                if (parseTableEntry != null) {
+                    beta.pop();
+                    continue;
+                }
+            }
+
+            if (parseTableEntry == null) {
+                go = false;
+                result = false;
+            } else {
+                List<String> production = parseTableEntry.getKey();
+                Integer productionPos = parseTableEntry.getValue();
+
+                if (productionPos == -1 && production.get(0).equals("acc")) {
+                    go = false;
+                } else if (productionPos == -1 && production.get(0).equals("pop")) {
+                    beta.pop();
+                    alpha.pop();
+                } else {
+                    beta.pop();
+                    if (!production.get(0).equals("~")) {
+                        pushAll(production, beta);
+                    }
+                    pi.push(productionPos.toString());
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private void pushAll(List<String> sequence, Stack<String> stack) {
+        for (int i = sequence.size() - 1; i >= 0; i--) {
+            stack.push(sequence.get(i));
+        }
     }
 
     public boolean containsKey(Pair<String, String> key) {
@@ -191,5 +284,9 @@ public class LL_1 {
             s.append(k.toString()).append(" -> ").append(v.toString()).append('\n');
         });
         return s.toString();
+    }
+
+    public Map<Pair<String, List<String>>, Integer> getProductionsNumbered() {
+        return numberedProductions;
     }
 }

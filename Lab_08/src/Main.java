@@ -1,54 +1,93 @@
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Stack;
 
 public class Main {
 
     static Grammar grammar = new Grammar();
-     static LL_1 ll1 = new LL_1(grammar);
+    static LL_1 ll1 = new LL_1(grammar);
 
     public static void main(String[] args) throws IOException {
 
         grammar.readFromFile();
         ll1.FIRST();
         ll1.FOLLOW();
-        ll1.parseTable();
-        System.out.println(ll1.getParseTable());
+        ll1.generateParseTable();
 
-//        while (true) {
-//            printMenu();
-//
-//            Scanner scanner = new Scanner(System.in);
-//            System.out.print("Option: ");
-//
-//            String option = scanner.nextLine();
-//
-//            switch (option) {
-//                case "1": {
-//                    printNonTerminals();
-//                    break;
-//                }
-//                case "2": {
-//                    printTerminals();
-//                    break;
-//                }
-//                case "3": {
-//                    printProductions();
-//                    break;
-//                }
-//                case "4": {
-//                    String nonTerminal = scanner.nextLine();
-//                    printProductionsForANonTerminal(nonTerminal.trim());
-//                    break;
-//                }
-//                case "0": {
-//                    return;
-//                }
-//                default: {
-//                    System.out.println("Wrong option");
-//                }
-//            }
-//        }
+        while (true) {
+            printMenu();
+
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Option: ");
+
+            String option = scanner.nextLine();
+
+            switch (option) {
+                case "1": {
+                    printNonTerminals();
+                    break;
+                }
+                case "2": {
+                    printTerminals();
+                    break;
+                }
+                case "3": {
+                    printProductions();
+                    break;
+                }
+                case "4": {
+                    String nonTerminal = scanner.nextLine();
+                    printProductionsForANonTerminal(nonTerminal.trim());
+                    break;
+                }
+                case "5": {
+                    System.out.println(ll1.getParseTable());
+                    break;
+                }
+                case "6": {
+                    Scanner inScanner = new Scanner(System.in);
+                    List<String> w = Arrays.asList(inScanner.nextLine().replace("\n", "").split(" "));
+                    parse(w);
+                }
+                case "0": {
+                    return;
+                }
+                default: {
+                    System.out.println("Wrong option");
+                }
+            }
+        }
+    }
+
+    public static void parse(List<String> w) {
+        boolean result = ll1.parse(w);
+        if (result) {
+            System.out.println("Sequence " + w + " accepted.");
+            Stack<String> pi = ll1.getPi();
+            System.out.println(pi);
+            System.out.println(displayPiProductions(pi));
+        } else {
+            System.out.println("Sequence " + w + " is not accepted.");
+        }
+    }
+
+    private static String displayPiProductions(Stack<String> pi) {
+        StringBuilder sb = new StringBuilder();
+
+        for (String productionIndexString : pi) {
+            if (productionIndexString.equals("~")) {
+                continue;
+            }
+            Integer productionIndex = Integer.parseInt(productionIndexString);
+            ll1.getProductionsNumbered().forEach((key, value) ->{
+                if (productionIndex.equals(value))
+                    sb.append(value).append(": ").append(key.getKey()).append(" -> ").append(key.getValue()).append("\n");
+            });
+        }
+
+        return sb.toString();
     }
 
     private static void printMenu() {
@@ -58,6 +97,8 @@ public class Main {
         menu += "2. Display terminals\n";
         menu += "3. Display all productions\n";
         menu += "4. Display all productions for a non-terminal\n";
+        menu += "5. Display parse table\n";
+        menu += "6. Parse sequence\n";
         menu += "0. Exit";
         System.out.println(menu);
         System.out.println("------------------------------");
@@ -94,7 +135,6 @@ public class Main {
                 all.append(" | ");
             }
             return "\t" + key + " -> " + all.substring(0, all.length() - 2);
-        }
-        else return "NonTerminal not found\n";
+        } else return "NonTerminal not found\n";
     }
 }
