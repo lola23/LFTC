@@ -49,7 +49,7 @@ public class Main {
                 case "6": {
                     Scanner inScanner = new Scanner(System.in);
                     List<String> w = Arrays.asList(inScanner.nextLine().replace("\n", "").split(" "));
-                    parse(w);
+                    parseSequence(w);
                 }
                 case "0": {
                     return;
@@ -61,19 +61,22 @@ public class Main {
         }
     }
 
-    public static void parse(List<String> w) {
+    public static void parseSequence(List<String> w) {
         boolean result = ll1.parse(w);
         if (result) {
-            System.out.println("Sequence " + w + " accepted.");
             Stack<String> pi = ll1.getPi();
             System.out.println(pi);
-            System.out.println(displayPiProductions(pi));
+            System.out.println(displayProductions(pi));
+            System.out.println("Sequence " + w + " accepted.");
         } else {
+            Stack<String> pi = ll1.getPi();
+            System.out.println(pi);
+            System.out.println(displayProductions(pi));
             System.out.println("Sequence " + w + " is not accepted.");
         }
     }
 
-    private static String displayPiProductions(Stack<String> pi) {
+    private static String displayProductions(Stack<String> pi) {
         StringBuilder sb = new StringBuilder();
 
         for (String productionIndexString : pi) {

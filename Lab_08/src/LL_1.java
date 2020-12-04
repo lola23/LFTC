@@ -22,11 +22,11 @@ public class LL_1 {
         this.parseTable = new HashMap<>();
     }
 
-    public Stack<String> getPi() {
-        return pi;
-    }
-
     public List<String> first(String nonTerminal) {
+
+        if (this.FIRST.containsKey(nonTerminal)) {
+            return this.FIRST.get(nonTerminal);
+        }
 
         List<String> terminals = grammar.getE();
         Map<String, List<List<String>>> productions = grammar.getP();
@@ -37,17 +37,13 @@ public class LL_1 {
             return Collections.singletonList(nonTerminal);
 
         List<String> firsts = new ArrayList<>();
-        if (this.FIRST.containsKey(nonTerminal)) {
-            return this.FIRST.get(nonTerminal);
-        } else {
-            for (List<String> list : all) {
+        for (List<String> list : all) {
 
-                String first = list.get(0);
-                if (terminals.contains(first)) {
-                    firsts.add(first);
-                } else {
-                    firsts.addAll(first(first));
-                }
+            String firstOfList = list.get(0);
+            if (terminals.contains(firstOfList)) {
+                firsts.add(firstOfList);
+            } else {
+                firsts.addAll(first(firstOfList));
             }
         }
         return firsts;
@@ -213,15 +209,15 @@ public class LL_1 {
         pi.clear();
         pi.push("~");
 
-        boolean go = true;
-        boolean result = true;
+        boolean parse = true;
+        boolean accepted = true;
 
-        while (go) {
+        while (parse) {
             String betaHead = beta.peek();
             String alphaHead = alpha.peek();
 
             if (betaHead.equals("$") && alphaHead.equals("$")) {
-                return result;
+                return accepted;
             }
 
             Pair<String, String> heads = new Pair<>(betaHead, alphaHead);
@@ -237,14 +233,14 @@ public class LL_1 {
             }
 
             if (parseTableEntry == null) {
-                go = false;
-                result = false;
+                parse = false;
+                accepted = false;
             } else {
                 List<String> production = parseTableEntry.getKey();
                 Integer productionPos = parseTableEntry.getValue();
 
                 if (productionPos == -1 && production.get(0).equals("acc")) {
-                    go = false;
+                    parse = false;
                 } else if (productionPos == -1 && production.get(0).equals("pop")) {
                     beta.pop();
                     alpha.pop();
@@ -258,7 +254,7 @@ public class LL_1 {
             }
         }
 
-        return result;
+        return accepted;
     }
 
     private void pushAll(List<String> sequence, Stack<String> stack) {
@@ -288,5 +284,9 @@ public class LL_1 {
 
     public Map<Pair<String, List<String>>, Integer> getProductionsNumbered() {
         return numberedProductions;
+    }
+
+    public Stack<String> getPi() {
+        return pi;
     }
 }
