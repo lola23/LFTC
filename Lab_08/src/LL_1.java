@@ -10,16 +10,20 @@ public class LL_1 {
     private Map<String, List<String>> FIRST;
     private Map<String, Set<String>> FOLLOW;
     private Map<Pair<String, String>, Pair<List<String>, Integer>> parseTable;
-    private Map<Pair<String, List<String>>, Integer> numberedProductions = new HashMap<>();
-    private Stack<String> alpha = new Stack<>();
-    private Stack<String> beta = new Stack<>();
-    private Stack<String> pi = new Stack<>();
+    private Map<Pair<String, List<String>>, Integer> numberedProductions;
+    private Stack<String> alpha;
+    private Stack<String> beta;
+    private Stack<String> pi;
 
     public LL_1(Grammar grammar) {
         this.grammar = grammar;
         this.FIRST = new HashMap<>();
         this.FOLLOW = new HashMap<>();
         this.parseTable = new HashMap<>();
+        this.numberedProductions = new HashMap<>();
+        this.alpha = new Stack<>();
+        this.beta = new Stack<>();
+        this.pi = new Stack<>();
     }
 
     public List<String> first(String nonTerminal) {
@@ -122,9 +126,9 @@ public class LL_1 {
 
     public void numberProductions() {
         int index = 1;
-        for (Map.Entry<String, List<List<String>>> entry : grammar.getP().entrySet()) {
-            for (List<String> rule : entry.getValue())
-                numberedProductions.put(new Pair<>(entry.getKey(), rule), index++);
+        for (Map.Entry<String, List<List<String>>> production : grammar.getP().entrySet()) {
+            for (List<String> value : production.getValue())
+                numberedProductions.put(new Pair<>(production.getKey(), value), index++);
         }
     }
     
@@ -136,20 +140,9 @@ public class LL_1 {
 
         // M(a, a) = pop
         // M($, $) = acc
-
         parseTable.put(new Pair<>("$", "$"), new Pair<>(Collections.singletonList("acc"), -1));
         for (String terminal: grammar.getE())
             parseTable.put(new Pair<>(terminal, terminal), new Pair<>(Collections.singletonList("pop"), -1));
-
-//        1) M(A, a) = (α, i), if:
-//            a) a ∈ first(α)
-//            b) a != ~
-//            c) A -> α production with index i
-//
-//        2) M(A, b) = (α, i), if:
-//            a) ~ ∈ first(α)
-//            b) whichever b ∈ follow(A)
-//            c) A -> α production with index i
 
         numberedProductions.forEach((key, value) -> {
             String rowSymbol = key.getKey();
@@ -159,23 +152,18 @@ public class LL_1 {
             for (String columnSymbol : columnSymbols) {
                 Pair<String, String> parseTableKey = new Pair<>(rowSymbol, columnSymbol);
 
-                // if our column-terminal is exactly first of rule
-                if (rule.get(0).equals(columnSymbol) && !columnSymbol.equals("~"))
+                if (rule.get(0).equals(columnSymbol) && !columnSymbol.equals("~")) {
                     parseTable.put(parseTableKey, parseTableValue);
-
-                    // if the first symbol is a non-terminal and it's first contain our column-terminal
-                else if (grammar.getN().contains(rule.get(0)) && FIRST.get(rule.get(0)).contains(columnSymbol)) {
-                    if (!parseTable.containsKey(parseTableKey)) {
-                        parseTable.put(parseTableKey, parseTableValue);
-                    }
+                } else
+                    if (grammar.getN().contains(rule.get(0)) && FIRST.get(rule.get(0)).contains(columnSymbol)) {
+                        if (!parseTable.containsKey(parseTableKey)) {
+                          parseTable.put(parseTableKey, parseTableValue);
+                        }
                 }
                 else {
-                    // if the first symbol is ~ then everything if FOLLOW(rowSymbol) will be in parse table
                     if (rule.get(0).equals("~")) {
                         for (String b : FOLLOW.get(rowSymbol))
                             parseTable.put(new Pair<>(rowSymbol, b), parseTableValue);
-
-                    // if ~ is in FIRST(rule)
                     } else {
                         Set<String> firsts = new HashSet<>();
                         for (String symbol : rule)
@@ -183,8 +171,9 @@ public class LL_1 {
                                 firsts.addAll(FIRST.get(symbol));
                         if (firsts.contains("~")) {
                             for (String b : FIRST.get(rowSymbol)) {
-                                if (b.equals("~"))
+                                if (b.equals("~")) {
                                     b = "$";
+                                }
                                 parseTableKey = new Pair<>(rowSymbol, b);
                                 if (!parseTable.containsKey(parseTableKey)) {
                                     parseTable.put(parseTableKey, parseTableValue);
@@ -221,27 +210,27 @@ public class LL_1 {
             }
 
             Pair<String, String> heads = new Pair<>(betaHead, alphaHead);
-            Pair<List<String>, Integer> parseTableEntry = parseTable.get(heads);
+            Pair<List<String>, Integer> parseTableValue = parseTable.get(heads);
 
-            if (parseTableEntry == null) {
+            if (parseTableValue == null) {
                 heads = new Pair<>(betaHead, "~");
-                parseTableEntry = parseTable.get(heads);
-                if (parseTableEntry != null) {
+                parseTableValue = parseTable.get(heads);
+                if (parseTableValue != null) {
                     beta.pop();
                     continue;
                 }
             }
 
-            if (parseTableEntry == null) {
+            if (parseTableValue == null) {
                 parse = false;
                 accepted = false;
             } else {
-                List<String> production = parseTableEntry.getKey();
-                Integer productionPos = parseTableEntry.getValue();
+                List<String> production = parseTableValue.getKey();
+                Integer productionNb = parseTableValue.getValue();
 
-                if (productionPos == -1 && production.get(0).equals("acc")) {
+                if (productionNb == -1 && production.get(0).equals("acc")) {
                     parse = false;
-                } else if (productionPos == -1 && production.get(0).equals("pop")) {
+                } else if (productionNb == -1 && production.get(0).equals("pop")) {
                     beta.pop();
                     alpha.pop();
                 } else {
@@ -249,7 +238,7 @@ public class LL_1 {
                     if (!production.get(0).equals("~")) {
                         pushAll(production, beta);
                     }
-                    pi.push(productionPos.toString());
+                    pi.push(productionNb.toString());
                 }
             }
         }
