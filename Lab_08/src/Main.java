@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -98,10 +100,36 @@ public class Main {
     }
 
     private static void readFromSeq(List<String> seq) {
+        try {
+            File fileSeq = new File("seq.in");
+            Scanner myReader = new Scanner(fileSeq);
+            String data = myReader.nextLine();
+            String[] sequence = data.split(" ");
+            seq.addAll(Arrays.asList(sequence));
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
     public static void readFromPIF(List<String> p1, List<String> p2, List<String> p3) {
-
+        try {
+            File filePifOut = new File("pif.out");
+            Scanner myReader = new Scanner(filePifOut);
+            String data = myReader.nextLine();
+            String[] sequence = data.split(" ");
+            p1.addAll(Arrays.asList(sequence));
+            data = myReader.nextLine();
+            sequence = data.split(" ");
+            p2.addAll(Arrays.asList(sequence));
+            data = myReader.nextLine();
+            sequence = data.split(" ");
+            p3.addAll(Arrays.asList(sequence));
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
     public static void parseSequence(List<String> w) {
@@ -127,7 +155,7 @@ public class Main {
                 continue;
             }
             Integer productionIndex = Integer.parseInt(productionIndexString);
-            ll1.getProductionsNumbered().forEach((key, value) ->{
+            ll1.getProductionsNumbered().forEach((key, value) -> {
                 if (productionIndex.equals(value))
                     sb.append(value).append(": ").append(key.getKey()).append(" -> ").append(key.getValue()).append("\n");
             });
