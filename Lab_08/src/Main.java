@@ -1,8 +1,5 @@
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Stack;
+import java.util.*;
 
 public class Main {
 
@@ -15,6 +12,14 @@ public class Main {
         ll1.FIRST();
         ll1.FOLLOW();
         ll1.generateParseTable();
+
+        List<String> seq = new ArrayList<>();
+        List<String> p1 = new ArrayList<>();
+        List<String> p2 = new ArrayList<>();
+        List<String> p3 = new ArrayList<>();
+
+        readFromSeq(seq);
+        readFromPIF(p1, p2, p3);
 
         while (true) {
             printMenu();
@@ -47,9 +52,40 @@ public class Main {
                     break;
                 }
                 case "6": {
-                    Scanner inScanner = new Scanner(System.in);
-                    List<String> w = Arrays.asList(inScanner.nextLine().replace("\n", "").split(" "));
+                    List<String> w = Arrays.asList(scanner.nextLine().replace("\n", "").split(" "));
                     parseSequence(w);
+                    break;
+                }
+                case "7": {
+                    parseSequence(seq);
+                    break;
+                }
+                case "8": {
+                    System.out.println("Select problem");
+                    String menu = "";
+                    menu += "1. p1\n";
+                    menu += "2. p2\n";
+                    menu += "3. p3\n";
+                    System.out.println(menu);
+                    String p = scanner.nextLine();
+                    switch (p) {
+                        case "1": {
+                            parseSequence(p1);
+                            break;
+                        }
+                        case "2": {
+                            parseSequence(p2);
+                            break;
+                        }
+                        case "3": {
+                            parseSequence(p3);
+                            break;
+                        }
+                        default: {
+                            return;
+                        }
+                    }
+                    break;
                 }
                 case "0": {
                     return;
@@ -61,6 +97,13 @@ public class Main {
         }
     }
 
+    private static void readFromSeq(List<String> seq) {
+    }
+
+    public static void readFromPIF(List<String> p1, List<String> p2, List<String> p3) {
+
+    }
+
     public static void parseSequence(List<String> w) {
         boolean result = ll1.parse(w);
         if (result) {
@@ -70,8 +113,8 @@ public class Main {
             System.out.println("Sequence " + w + " accepted.");
         } else {
             Stack<String> pi = ll1.getPi();
-            System.out.println(pi);
-            System.out.println(displayProductions(pi));
+//            System.out.println(pi);
+//            System.out.println(displayProductions(pi));
             System.out.println("Sequence " + w + " is not accepted.");
         }
     }
@@ -102,6 +145,8 @@ public class Main {
         menu += "4. Display all productions for a non-terminal\n";
         menu += "5. Display parse table\n";
         menu += "6. Parse sequence\n";
+        menu += "7. Parse seq.in for g1.in\n";
+        menu += "8. Parse pif.out for g2.in\n";
         menu += "0. Exit";
         System.out.println(menu);
         System.out.println("------------------------------");

@@ -1,0 +1,27 @@
+program = "begin_appy" declarations { stmt_list } "end_appy"
+declaration = base_declaration | array_declaration
+declarations = declaration { declaration }
+base_declaration = type identifier { identifier_list } ";"
+identifier_list = "," identifier { identifier_list }
+type = "inty" | "booly"
+array_declaration = "arry["type"]" aa aa_list ";"
+aa = identifier"["identifier|constant"]"
+aa_list = "," aa { aa_list }
+
+stmt_list = stmt { stmt }
+stmt = simple_stmt | struct_stmt
+simple_stmt = assignment_stmt | io_stmt
+struct_stmt = compound_stmt | if_stmt | loop_stmt
+compound_stmt = "{" stmt_list "}"
+
+expression = 
+operation  = "+" | "-" | "*" | "/" | "%" | "and" | "or"
+term = identifier | constant | aa
+
+assignment_stmt = identifier "is" expression
+io_stmt = ("pickup" | "sparkle") identifier
+if_stmt = "ify" condition compound_stmt [ "elseify" condition compound_stmt [ "elsy" compound_stmt ] ]
+loop_stmt = "loopy" loop compound_stmt
+condition = "(" expression relation expression ")"
+loop = "(" inty identifier ";" expression "to" expression ";" integer ")"
+relation = "<" | "<=" | "=" | "!=" | ">=" | ">" | "and" | "or"
