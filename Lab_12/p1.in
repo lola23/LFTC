@@ -1,0 +1,13 @@
+begin_appy
+	inty a , b , c , max ;
+	a is 10 ;
+	b is 20 ;
+	c is 12 ;
+	ify ( a >= b and a >= c ) {
+		max is a;
+	} elseify ( b >= a and b >= c) {
+		max is b;
+	} elsy {
+		max is c;
+	}
+end_appy
